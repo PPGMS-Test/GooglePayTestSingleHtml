@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Google Pay</title>
+        <script src="./script.js"></script>
+        <!-- <script src="https://www.paypal.com/sdk/js?client-id=AZKhxEQXmqa55rEt7Oa-sYX57JBVwMIHXf0Mo5-9HIqH33IK8QlbZRmafaTB45htQh4iEO_yTFXCySz_&currency=USD&buyer-country=US&merchant-id=T3SFNJ7M786Z4&components=googlepay"></script> -->
+        <link rel="shortcut icon" href="#" />
+    </head>
+    <body>
+        <main>
+            <section>
+                <div id="button-container"></div>
+            </section>
+        </main>
+
+        <script
+            src="https://www.paypal.com/sdk/js?client-id=AecNl_qaDuLKXRGAviRbvQ5773SJLW15PrxuOShudJbS3QCaBH8tTX6Wi1mJ8aByWaQx2FeRIVZ7KCg0&buyer-country=US&currency=USD&components=googlepay&merchant-id=CMHAMMNAXCMGA"
+            onload="console.log('PayPal SPB Script Loaded')"
+        ></script>
+
+       
+
+        <script
+            src="https://pay.google.com/gp/p/js/pay.js"
+            onload="console.log('Google Pay Script Loaded')"
+        ></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+                if (google && paypal.Googlepay) {
+                    onGooglePayLoaded().catch(console.log);
+                }
+            });
+        </script>
+    </body>
+</html>
