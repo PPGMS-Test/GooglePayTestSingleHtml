@@ -48,8 +48,12 @@ async function getGooglePaymentDataRequest() {
     const { allowedPaymentMethods, merchantInfo } = await getGooglePayConfig();
     paymentDataRequest.allowedPaymentMethods = allowedPaymentMethods;
     //添加测试的交易信息
+    //TODO
+    //没有试过, 如果给Google的订单和给PayPal订单的价格是不一样的会发生什么事
     paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
     paymentDataRequest.merchantInfo = merchantInfo;
+    
+    //使用回调 intent 加载付款数据
     paymentDataRequest.callbackIntents = ["PAYMENT_AUTHORIZATION"];
     return paymentDataRequest;
 }
@@ -57,6 +61,7 @@ async function getGooglePaymentDataRequest() {
 
 function onPaymentAuthorized(paymentData) {
     return new Promise(function (resolve, reject) {
+        console.log("[9]The user authorized this transaction!")
         processPayment(paymentData)
             .then(function (data) {
                 resolve({ transactionState: "SUCCESS" });
@@ -75,7 +80,11 @@ function getGooglePaymentsClient() {
             environment: "TEST",
             paymentDataCallbacks: {
                 //注册: 在买家授权之后
+                //参考Dev Doc第11步 设置授权付款
                 onPaymentAuthorized: onPaymentAuthorized,
+
+                //这里还可以添加onPaymentDataChanged的回调函数, 用于解决运费/促销的问题
+                //参考Dev Doc第12步 设置授权付款
             },
         });
     }
@@ -88,6 +97,7 @@ async function onGooglePayLoaded() {
     console.log("[1](onGooglePayLoaded): Google Pay Script is loaded!")
     const paymentsClient = getGooglePaymentsClient();
     const { allowedPaymentMethods } = await getGooglePayConfig();
+
     console.log("[4](onGooglePayLoaded): execute isReadyToPay() function")
     paymentsClient
         .isReadyToPay(getGoogleIsReadyToPayRequest(allowedPaymentMethods))
@@ -141,8 +151,10 @@ async function onGooglePaymentButtonClicked() {
     const paymentDataRequest = await getGooglePaymentDataRequest();
     paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
     const paymentsClient = getGooglePaymentsClient();
-    //TODO 第10步
+
+    //参考Google Pay dev doc第10步
     paymentsClient.loadPaymentData(paymentDataRequest);
+    //其他的支付网关比如使用银行卡之类的到这里可能就结束了, 从paymentsClient获取token并传给第三方支付机构
 }
 
 
@@ -165,7 +177,9 @@ async function processPayment(paymentData) {
         };
         const accessToken = await generateAccessToken();
         // console.log(accessToken)
+
         /* Create Order */
+        console.log("[10]Order V2 -- Create Order is called!")
         const { id } = await fetch(
             "https://api.sandbox.paypal.com/v2/checkout/orders",
             {
@@ -185,6 +199,8 @@ async function processPayment(paymentData) {
             paymentMethodData: paymentData.paymentMethodData,
         });
         console.log("Status: google pay confirm order:", status);
+        //TODO
+        //这里是做Strong Customer Authentication (SCA)的验证, 但是我还没有试出来如何让状态变为PAYER_ACTION_REQUIRED
         if(status === "PAYER_ACTION_REQUIRED"){
             console.log("==== Confirm Payment Completed Payer Action Required =====");
             paypal
@@ -206,8 +222,12 @@ async function processPayment(paymentData) {
                 }).then((res) => res.json());
                 console.log(" ===== Order Capture Completed ===== ");
               });
+
+
         } else if (status === "APPROVED") {
             /* Capture the Order */
+            console.log("[11]Order V2 -- Capture Order is called!")
+
             const captureResponse = await fetch(
                 `https://api.sandbox.paypal.com/v2/checkout/orders/${id}/capture`,
                 {
