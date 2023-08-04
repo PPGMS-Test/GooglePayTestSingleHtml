@@ -5,22 +5,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Google Pay</title>
         <script src="./script.js"></script>
-        <!-- <script src="https://www.paypal.com/sdk/js?client-id=AZKhxEQXmqa55rEt7Oa-sYX57JBVwMIHXf0Mo5-9HIqH33IK8QlbZRmafaTB45htQh4iEO_yTFXCySz_&currency=USD&buyer-country=US&merchant-id=T3SFNJ7M786Z4&components=googlepay"></script> -->
+
         <link rel="shortcut icon" href="#" />
     </head>
     <body>
         <main>
-            <section>
+            <section class="container">
                 <div id="button-container"></div>
             </section>
         </main>
+
+        <style>
+            .container {
+                height: 200px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
 
         <script
             src="https://www.paypal.com/sdk/js?client-id=AecNl_qaDuLKXRGAviRbvQ5773SJLW15PrxuOShudJbS3QCaBH8tTX6Wi1mJ8aByWaQx2FeRIVZ7KCg0&buyer-country=US&currency=USD&components=googlepay&merchant-id=CMHAMMNAXCMGA"
             onload="console.log('PayPal SPB Script Loaded')"
         ></script>
-
-       
 
         <script
             src="https://pay.google.com/gp/p/js/pay.js"
@@ -28,6 +35,11 @@
         ></script>
 
         <script>
+            const client_id =
+                "AecNl_qaDuLKXRGAviRbvQ5773SJLW15PrxuOShudJbS3QCaBH8tTX6Wi1mJ8aByWaQx2FeRIVZ7KCg0";
+            const secret_key =
+                "EFuRYH2pDANYlrpybQulVCq6sc706zEw37ffiMKvpw4vzPJEpNk9NeORWS4l4rMtAbzLWqssRb_ny_Mj";
+
             document.addEventListener("DOMContentLoaded", (event) => {
                 if (google && paypal.Googlepay) {
                     onGooglePayLoaded().catch(console.log);
